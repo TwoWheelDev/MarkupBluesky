@@ -30,8 +30,20 @@ Once added, you can:
 - Set the number of posts (default: 5)
 - Choose whether to include reposts
 
-### 3. Rendering on Frontend
+### 4. Rendering on Frontend
+
+When using the rendering two dependencies are needed:
+- FancyBox (to post images to be displayed full screen)
+- HLS (to allow users to play emebedded videos)
+
+These can be added to the head of the page:
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+```
  
+To output the feed to the page:
 ```php
 echo $modules->get('MarkupBluesky')->renderFeed($page->bluesky);
 ```
