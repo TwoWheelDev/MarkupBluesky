@@ -10,11 +10,19 @@
  * @href https://github.com/twowheeldev/MarkupBluesky
  *
  */
-
+require_once __DIR__ . "/Bluesky.php";
 use ProcessWire\BlueskyAPI;
 
 class MarkupBluesky extends WireData implements Module
 {
+    protected BlueskyAPI $api;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->api = new BlueskyAPI();
+    }
+
     public static function getModuleInfo() {
         return [
             'title' => 'Markup Bluesky Posts',
@@ -135,7 +143,7 @@ class MarkupBluesky extends WireData implements Module
 
     public function renderFeed($page, $fieldName) {
         $data = $page->get($fieldName);
-        $posts = BlueskyAPI::fetchFeed(ltrim($data->bluesky_handle, "@"), $data->bluesky_post_count, $data->bluesky_include_reposts);
+        $posts = $this->api->fetchFeed(ltrim($data->bluesky_handle, "@"), $data->bluesky_post_count, $data->bluesky_include_reposts);
 
         $out = "<div class='space-y-6'>";
 

@@ -7,6 +7,14 @@ use ProcessWire\BlueskyAPI;
 
 class TextformatterBluesky extends Textformatter implements Module
 {
+    protected BlueskyAPI $api;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->api = new BlueskyAPI();
+    }
+
     public static function getModuleInfo()
     {
         return [
@@ -35,7 +43,7 @@ class TextformatterBluesky extends Textformatter implements Module
 
             $atUri = "at://$did/app.bsky.feed.post/$postId";
             // Get the post from Bluesky
-            $post = BlueskyAPI::fetchPost($atUri);
+            $post = $this->api->fetchPost($atUri);
             /** @var MarkupBluesky $bskyMarkup */
             $bskyMarkup = $this->modules->get('MarkupBluesky');
             $markup  = "<div class='w-full md:w-1/2 mx-auto not-prose'>";
@@ -50,7 +58,7 @@ class TextformatterBluesky extends Textformatter implements Module
         $this->format($value);
     }
 
-    protected function resolveDid(string $handle): ?string
+    protected function resolveDid(string $handle): ?string //TODO - Move this to the BlueskyAPI
     {
         // First, try to get from database
         $query = $this->database->prepare('SELECT did FROM textformatter_bsky_handles WHERE handle = ?');

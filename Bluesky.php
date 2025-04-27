@@ -5,19 +5,24 @@ namespace ProcessWire;
 
 class BlueskyAPI
 {
+    protected WireHttp $client;
+
+    public function __construct(?WireHttp $client = null)
+    {
+        $this->client = $client ?? new WireHttp();
+    }
+
     /**
      * Fetch a single post from Bluesky
      *
      * @param string $atUri atProto URI
      * @return BlueskyPost Post
      */
-    public static function fetchPost(string $atUri): BlueskyPost|null
+    public function fetchPost(string $atUri): BlueskyPost|null
     {
-        $client = new WireHttp();
+        $response = $this->client->getJSON("https://public.api.bsky.app/xrpc/app.bsky.feed.getPosts", true, ['uris' => $atUri]);
 
-        $response = $client->getJSON("https://public.api.bsky.app/xrpc/app.bsky.feed.getPosts", true, ['uris' => $atUri]);
-
-        if ($client->getHttpCode() === 200) {
+        if ($this->client->getHttpCode() === 200) {
             $post = $response['posts'][0];
             return new BlueskyPost($post);
         } else {
@@ -34,21 +39,18 @@ class BlueskyAPI
      * @param boolean|null $includeReposts Include reposts in response
      * @return array<BlueskyPost> Array of posts
      */
-    public static function fetchFeed(string $handle, int $limit, ?bool $includeReposts = false): array
+    public function fetchFeed(string $handle, int $limit, ?bool $includeReposts = false): array
     {
-
-        $client = new WireHttp();
-
-        $client->setData([
+        $this->client->setData([
             'actor' => $handle,
             'limit' => $limit,
             'filter' => 'posts_no_replies',
         ]);
 
-        $response = $client->getJSON("https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed");
+        $response = $this->client->getJSON("https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed");
 
-        if ($client->getHttpCode() === 200) {
-            return self::processPosts($response['feed'] ?? [], $includeReposts);
+        if ($this->client->getHttpCode() === 200) {
+            return $this->processPosts($response['feed'] ?? [], $includeReposts);
         } else {
             WireLog()->save('bluesky', "Failed to fetch feed: " . $response['message']);
             return [];
@@ -62,7 +64,7 @@ class BlueskyAPI
      * @param bool|null $includeReposts Whether to include reposts in the processed feed. Defaults to false.
      * @return array<BlueskyPost> The processed array of posts.
      */
-    protected static function processPosts(array $feed, ?bool $includeReposts = false): array {
+    protected function processPosts(array $feed, ?bool $includeReposts = false): array {
         /** @var array<BlueskyPost> $posts */
         $posts = [];
 
