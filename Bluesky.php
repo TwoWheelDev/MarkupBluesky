@@ -6,6 +6,7 @@ namespace ProcessWire;
 class BlueskyAPI
 {
     protected WireHttp $client;
+    private const API_BASEURL = "https://public.api.bsky.app/xrpc";
 
     public function __construct(?WireHttp $client = null)
     {
@@ -20,7 +21,7 @@ class BlueskyAPI
      */
     public function fetchPost(string $atUri): BlueskyPost|null
     {
-        $response = $this->client->getJSON("https://public.api.bsky.app/xrpc/app.bsky.feed.getPosts", true, ['uris' => $atUri]);
+        $response = $this->client->getJSON(self::API_BASEURL . "/app.bsky.feed.getPosts", true, ['uris' => $atUri]);
 
         if ($this->client->getHttpCode() === 200) {
             $post = $response['posts'][0];
@@ -47,7 +48,7 @@ class BlueskyAPI
             'filter' => 'posts_no_replies',
         ]);
 
-        $response = $this->client->getJSON("https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed");
+        $response = $this->client->getJSON(self::API_BASEURL . "/app.bsky.feed.getAuthorFeed");
 
         if ($this->client->getHttpCode() === 200) {
             return $this->processPosts($response['feed'] ?? [], $includeReposts);
@@ -59,7 +60,7 @@ class BlueskyAPI
 
     public function resolveHandle(string $handle): string|false
     {
-        $response = $this->client->getJSON("https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle", true, ['handle' => urlencode($handle)]);
+        $response = $this->client->getJSON(self::API_BASEURL . "/com.atproto.identity.resolveHandle", true, ['handle' => urlencode($handle)]);
     
         if ($this->client->getHttpCode() === 200) {
             return $response['did'];
