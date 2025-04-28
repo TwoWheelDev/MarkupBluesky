@@ -1,26 +1,26 @@
 <?php
 
-require __DIR__ . "/../../Bluesky.php";
+require __DIR__.'/../../Bluesky.php';
 use ProcessWire\BlueskyAPI;
+use ProcessWire\BlueskyMediaExternal;
 use ProcessWire\BlueskyMediaFactory;
 use ProcessWire\BlueskyMediaImage;
-use ProcessWire\BlueskyPost;
 use ProcessWire\BlueskyMediaImages;
 use ProcessWire\BlueskyMediaVideo;
-use ProcessWire\BlueskyMediaExternal;
+use ProcessWire\BlueskyPost;
 
 dataset('embeds', [
     'images' => [
         [
-            '$type' => 'app.bsky.embed.images#view',
+            '$type'  => 'app.bsky.embed.images#view',
             'images' => [
                 [
-                    'alt' => 'An image',
-                    'fullsize' => 'https://example.com/full.jpg',
-                    'thumb' => 'https://example.com/thumb.jpg',
+                    'alt'         => 'An image',
+                    'fullsize'    => 'https://example.com/full.jpg',
+                    'thumb'       => 'https://example.com/thumb.jpg',
                     'aspectRatio' => [
                         'height' => 1080,
-                        'width' => 1920,
+                        'width'  => 1920,
                     ],
                 ],
             ],
@@ -30,7 +30,7 @@ dataset('embeds', [
     ],
     'video' => [
         [
-            '$type' => 'app.bsky.embed.video#view',
+            '$type'    => 'app.bsky.embed.video#view',
             'playlist' => 'https://example.com/video.m3u8',
         ],
         BlueskyMediaVideo::class,
@@ -38,12 +38,12 @@ dataset('embeds', [
     ],
     'external' => [
         [
-            '$type' => 'app.bsky.embed.external#view',
+            '$type'    => 'app.bsky.embed.external#view',
             'external' => [
-                'uri' => 'https://example.com',
-                'title' => 'Example Title',
+                'uri'         => 'https://example.com',
+                'title'       => 'Example Title',
                 'description' => 'Example Description',
-                'thumb' => 'https://example.com/thumb.jpg',
+                'thumb'       => 'https://example.com/thumb.jpg',
             ],
         ],
         BlueskyMediaExternal::class,
@@ -63,15 +63,15 @@ it('fetches a post successfully', function () {
         ->andReturn([
             'posts' => [
                 [
-                    'uri' => 'at://user/post',
+                    'uri'    => 'at://user/post',
                     'author' => ['handle' => 'testuser'],
                     'record' => [
-                        'text' => 'Hello World!',
+                        'text'      => 'Hello World!',
                         'createdAt' => '2025-04-27T10:00:00Z',
                     ],
-                    'replyCount' => 0,
+                    'replyCount'  => 0,
                     'repostCount' => 0,
-                    'likeCount' => 0,
+                    'likeCount'   => 0,
                 ],
             ],
         ]);
@@ -96,15 +96,15 @@ it('fetches a feed successfully', function () {
             'feed' => [
                 [
                     'post' => [
-                        'uri' => 'at://user/post',
+                        'uri'    => 'at://user/post',
                         'author' => ['handle' => 'testuser'],
                         'record' => [
-                            'text' => 'Hello World!',
+                            'text'      => 'Hello World!',
                             'createdAt' => '2025-04-27T10:00:00Z',
                         ],
-                        'replyCount' => 0,
+                        'replyCount'  => 0,
                         'repostCount' => 0,
-                        'likeCount' => 0,
+                        'likeCount'   => 0,
                     ],
                 ],
             ],
@@ -132,13 +132,13 @@ it('can create a BlueskyPost from API data', function () {
         ],
         'record' => [
             'createdAt' => '2025-04-25T12:00:00Z',
-            'text' => 'Hello world!',
+            'text'      => 'Hello world!',
         ],
-        'uri' => 'at://did:plc:xyz123/app.bsky.feed.post/abc456',
-        'embed' => null,
-        'replyCount' => 2,
+        'uri'         => 'at://did:plc:xyz123/app.bsky.feed.post/abc456',
+        'embed'       => null,
+        'replyCount'  => 2,
         'repostCount' => 3,
-        'likeCount' => 5
+        'likeCount'   => 5,
     ];
 
     $post = new BlueskyPost($postData);
@@ -175,4 +175,3 @@ it('can create the correct BlueskyMedia object from embed data', function (array
             ->and($media->thumb)->toBe($embedData['external']['thumb']);
     }
 })->with('embeds');
-

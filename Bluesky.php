@@ -1,12 +1,12 @@
 <?php
 
 namespace ProcessWire;
-/** @var WireHTTP $client */
 
+/** @var WireHTTP $client */
 class BlueskyAPI
 {
     protected WireHttp $client;
-    private const API_BASEURL = "https://public.api.bsky.app/xrpc";
+    private const API_BASEURL = 'https://public.api.bsky.app/xrpc';
 
     public function __construct(?WireHttp $client = null)
     {
@@ -14,58 +14,64 @@ class BlueskyAPI
     }
 
     /**
-     * Fetch a single post from Bluesky
+     * Fetch a single post from Bluesky.
      *
      * @param string $atUri atProto URI
+     *
      * @return BlueskyPost Post
      */
-    public function fetchPost(string $atUri): BlueskyPost|null
+    public function fetchPost(string $atUri): ?BlueskyPost
     {
-        $response = $this->client->getJSON(self::API_BASEURL . "/app.bsky.feed.getPosts", true, ['uris' => $atUri]);
+        $response = $this->client->getJSON(self::API_BASEURL.'/app.bsky.feed.getPosts', true, ['uris' => $atUri]);
 
         if ($this->client->getHttpCode() === 200) {
             $post = $response['posts'][0];
+
             return new BlueskyPost($post);
         } else {
-            WireLog()->save('bluesky', "Failed to fetch post: " . $response['message']);
+            WireLog()->save('bluesky', 'Failed to fetch post: '.$response['message']);
+
             return null;
         }
     }
 
     /**
-     * Fetch a feed for a given author
+     * Fetch a feed for a given author.
      *
-     * @param string $handle Authors Bluesky handle
-     * @param integer $limit Number of posts to retrieve
-     * @param boolean|null $includeReposts Include reposts in response
+     * @param string    $handle         Authors Bluesky handle
+     * @param int       $limit          Number of posts to retrieve
+     * @param bool|null $includeReposts Include reposts in response
+     *
      * @return array<BlueskyPost> Array of posts
      */
     public function fetchFeed(string $handle, int $limit, ?bool $includeReposts = false): array
     {
         $this->client->setData([
-            'actor' => $handle,
-            'limit' => $limit,
+            'actor'  => $handle,
+            'limit'  => $limit,
             'filter' => 'posts_no_replies',
         ]);
 
-        $response = $this->client->getJSON(self::API_BASEURL . "/app.bsky.feed.getAuthorFeed");
+        $response = $this->client->getJSON(self::API_BASEURL.'/app.bsky.feed.getAuthorFeed');
 
         if ($this->client->getHttpCode() === 200) {
             return $this->processPosts($response['feed'] ?? [], $includeReposts);
         } else {
-            WireLog()->save('bluesky', "Failed to fetch feed: " . $response['message']);
+            WireLog()->save('bluesky', 'Failed to fetch feed: '.$response['message']);
+
             return [];
         }
     }
 
     public function resolveHandle(string $handle): string|false
     {
-        $response = $this->client->getJSON(self::API_BASEURL . "/com.atproto.identity.resolveHandle", true, ['handle' => urlencode($handle)]);
-    
+        $response = $this->client->getJSON(self::API_BASEURL.'/com.atproto.identity.resolveHandle', true, ['handle' => urlencode($handle)]);
+
         if ($this->client->getHttpCode() === 200) {
             return $response['did'];
         } else {
-            WireLog()->save('bluesky', "Failed to resolve the handle: " . $response['message']);
+            WireLog()->save('bluesky', 'Failed to resolve the handle: '.$response['message']);
+
             return false;
         }
     }
@@ -73,11 +79,13 @@ class BlueskyAPI
     /**
      * Processes a feed of posts and filters out reposts if specified.
      *
-     * @param array $feed The array of posts to process.
+     * @param array     $feed           The array of posts to process.
      * @param bool|null $includeReposts Whether to include reposts in the processed feed. Defaults to false.
+     *
      * @return array<BlueskyPost> The processed array of posts.
      */
-    protected function processPosts(array $feed, ?bool $includeReposts = false): array {
+    protected function processPosts(array $feed, ?bool $includeReposts = false): array
+    {
         /** @var array<BlueskyPost> $posts */
         $posts = [];
 
@@ -93,28 +101,26 @@ class BlueskyAPI
     }
 }
 
-
 /**
- * Class BlueskyPost
+ * Class BlueskyPost.
  *
  * Represents a post for the Bluesky module.
  * This class is responsible for handling the data and functionality
  * related to a Bluesky post within the system.
- *
  */
-class BlueskyPost {
-
+class BlueskyPost
+{
     public string $text;
     public string $createdAt;
     public string $uri;
     public string $url;
-    public BlueskyMedia|null $media;
+    public ?BlueskyMedia $media;
     public array $author;
     public int $replies;
     public int $reposts;
     public int $likes;
 
-    function __construct(array $post)
+    public function __construct(array $post)
     {
         $this->author = $post['author'];
         $this->createdAt = $post['record']['createdAt'];
@@ -127,16 +133,18 @@ class BlueskyPost {
         $this->likes = $post['likeCount'];
     }
 
-    private function buildPostUrl(): string {
+    private function buildPostUrl(): string
+    {
         $uriParts = explode('/', $this->uri);
         $rkey = end($uriParts);
+
         return "https://bsky.app/profile/{$this->author['handle']}/post/{$rkey}";
     }
 }
 
 class BlueskyMediaFactory
 {
-    public static function create(array $embed): BlueskyMedia|null
+    public static function create(array $embed): ?BlueskyMedia
     {
         if (empty($embed)) {
             return null;
@@ -168,7 +176,8 @@ abstract class BlueskyMedia
     }
 }
 
-class BlueskyMediaImage {
+class BlueskyMediaImage
+{
     public string $alt;
     public string $fullsize;
     public string $thumb;
@@ -182,8 +191,8 @@ class BlueskyMediaImage {
 }
 
 /**
- * BlueskyMediaImages
- * 
+ * BlueskyMediaImages.
+ *
  * @property array<BlueskyMediaImage> $images
  */
 class BlueskyMediaImages extends BlueskyMedia
