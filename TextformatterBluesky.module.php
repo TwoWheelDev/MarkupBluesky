@@ -3,7 +3,6 @@
 namespace ProcessWire;
 
 require_once 'Bluesky.php';
-use ProcessWire\BlueskyAPI;
 
 class TextformatterBluesky extends Textformatter implements Module
 {
@@ -18,11 +17,11 @@ class TextformatterBluesky extends Textformatter implements Module
     public static function getModuleInfo()
     {
         return [
-            'title' => 'Textformatter Bluesky',
-            'version' => 1,
-            'summary' => 'Formats a Bluesky link to show the post',
-            'author' => 'TwoWheelDev',
-            'singular' => true
+            'title'    => 'Textformatter Bluesky',
+            'version'  => 1,
+            'summary'  => 'Formats a Bluesky link to show the post',
+            'author'   => 'TwoWheelDev',
+            'singular' => true,
         ];
     }
 
@@ -46,9 +45,10 @@ class TextformatterBluesky extends Textformatter implements Module
             $post = $this->api->fetchPost($atUri);
             /** @var MarkupBluesky $bskyMarkup */
             $bskyMarkup = $this->modules->get('MarkupBluesky');
-            $markup  = "<div class='w-full md:w-1/2 mx-auto not-prose'>";
+            $markup = "<div class='w-full md:w-1/2 mx-auto not-prose'>";
             $markup .= $bskyMarkup->renderPost($post);
-            $markup .= "</div>";
+            $markup .= '</div>';
+
             return $markup;
         }, $str);
     }
@@ -78,7 +78,7 @@ class TextformatterBluesky extends Textformatter implements Module
             $insert->execute([$handle, $did]);
 
             return $did;
-        } 
+        }
 
         return null;
     }
@@ -86,7 +86,7 @@ class TextformatterBluesky extends Textformatter implements Module
     public function ___install()
     {
         // Create the table
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE IF NOT EXISTS textformatter_bsky_handles (
             id INT AUTO_INCREMENT PRIMARY KEY,
             handle VARCHAR(255) UNIQUE NOT NULL,
@@ -101,7 +101,7 @@ class TextformatterBluesky extends Textformatter implements Module
     public function ___uninstall()
     {
         // Drop the table
-        $sql = "DROP TABLE IF EXISTS textformatter_bsky_handles;";
+        $sql = 'DROP TABLE IF EXISTS textformatter_bsky_handles;';
         $this->database->exec($sql);
     }
 }
