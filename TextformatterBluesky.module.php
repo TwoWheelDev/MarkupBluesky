@@ -22,6 +22,7 @@ class TextformatterBluesky extends Textformatter implements Module
             'summary'  => 'Formats a Bluesky link to show the post',
             'author'   => 'TwoWheelDev',
             'singular' => true,
+            'requires' => ['MarkupBluesky']
         ];
     }
 
