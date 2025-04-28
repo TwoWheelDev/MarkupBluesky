@@ -58,7 +58,7 @@ class TextformatterBluesky extends Textformatter implements Module
         $this->format($value);
     }
 
-    protected function resolveDid(string $handle): ?string //TODO - Move this to the BlueskyAPI
+    protected function resolveDid(string $handle): ?string
     {
         // First, try to get from database
         $query = $this->database->prepare('SELECT did FROM textformatter_bsky_handles WHERE handle = ?');
@@ -70,29 +70,17 @@ class TextformatterBluesky extends Textformatter implements Module
         }
 
         // Not found — try resolving via Bluesky Identity API
-        try {
-            $url = "https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=" . urlencode($handle);
-            $response = file_get_contents($url, false, stream_context_create([
-                'http' => ['timeout' => 5] // 5 second timeout
-            ]));
 
-            if ($response) {
-                $data = json_decode($response, true);
-                if (!empty($data['did'])) {
-                    $did = $data['did'];
+        $did = $this->api->resolveHandle($handle);
 
-                    // Insert into database
-                    $insert = $this->database->prepare('INSERT INTO textformatter_bsky_handles (handle, did, last_checked) VALUES (?, ?, NOW())');
-                    $insert->execute([$handle, $did]);
+        if ($did) {
+            $insert = $this->database->prepare('INSERT INTO textformatter_bsky_handles (handle, did, last_checked) VALUES (?, ?, NOW())');
+            $insert->execute([$handle, $did]);
 
-                    return $did;
-                }
-            }
-        } catch (\Exception $e) {
-            $this->log->save('Bluesky', 'Bluesky DID resolution failed: ' . $e->getMessage());
-        }
+            return $did;
+        } 
 
-        return null; // Failure
+        return null;
     }
 
     public function ___install()

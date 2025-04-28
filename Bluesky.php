@@ -57,6 +57,18 @@ class BlueskyAPI
         }
     }
 
+    public function resolveHandle(string $handle): string|false
+    {
+        $response = $this->client->getJSON("https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle", true, ['handle' => urlencode($handle)]);
+    
+        if ($this->client->getHttpCode() === 200) {
+            return $response['did'];
+        } else {
+            WireLog()->save('bluesky', "Failed to resolve the handle: " . $response['message']);
+            return false;
+        }
+    }
+
     /**
      * Processes a feed of posts and filters out reposts if specified.
      *
