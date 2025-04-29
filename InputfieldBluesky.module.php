@@ -56,7 +56,6 @@ class InputfieldBluesky extends InputfieldWrapper
     {
         $data = new WireData();
         $value = $input->{$this->name};
-        bd($value);
 
         $data->bluesky_handle = $value['handle'] ?? '';
         $data->bluesky_post_count = (int) ($value['post_count'] ?? 5);
